@@ -7,4 +7,4 @@ from dataclasses import dataclass
 class GPUProcess(object):
     pid: int
     name: str
-    memory_used: int    
+    memory_used: int

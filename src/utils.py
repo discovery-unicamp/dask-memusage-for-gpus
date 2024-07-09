@@ -5,6 +5,7 @@ import xml.etree.ElementTree as ET
 from time import sleep
 
 from . import definitions as defs
+from . import gpus
 
 
 def run_cmd(cmd, shell=True):
@@ -17,21 +18,22 @@ def run_cmd(cmd, shell=True):
         if line:
             yield line
 
-    while p.poll() is None:                                                                                                                                        
+    while p.poll() is None:
         sleep(.1)
 
     err = p.stderr.read()
     if p.returncode != 0:
-       raise defs.CMDException("Error: " + str(err))
+        raise defs.CMDException("Error: " + str(err))
 
 
-class generate_gpu_proccesses():
+def generate_gpu_proccesses():
     output = ""
     for line in run_cmd(defs.NVIDIA_SMI_QUERY_XML_CMD):
         output += line
 
     root = ET.fromstring(output)
 
+    processes = list()
     for child in root:
         if child.tag == "gpu":
             for gpu_child in child:
@@ -44,5 +46,9 @@ class generate_gpu_proccesses():
                                 elif process_info.tag == "process_name":
                                     name = process_info.text
                                 elif process_info.tag == "used_memory":
-                                    memory = float(process_info.text.split(' ')[0])
-                            processes.append(GPUProcess(pid=pid, name=name, memory=memory)
+                                    memory = process_info.text.split(' ')
+                                    memory = float(memory[0])
+                            processes.append(gpus.GPUProcess(pid=pid,
+                                                             name=name,
+                                                             memory=memory))
+    return processes

@@ -19,7 +19,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
 def validate_file_type(filetype):
     if filetype not in defs.FILE_TYPES:
-        raise defs.FileTypeException(f"'{filetype}' is not a valid output file.")    
+        raise defs.FileTypeException(f"'{filetype}' is not a valid "
+                                     "output file.")
 
 
 @click.command()
