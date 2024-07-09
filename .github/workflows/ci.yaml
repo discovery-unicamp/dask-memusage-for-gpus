@@ -1,0 +1,59 @@
+name: Continuous Test
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request: {}
+
+jobs:
+  lint:
+    environment: continuous_test
+    strategy:
+      matrix:
+        # Run for Python 3.8 only for now
+        python-version: ['3.8']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          pip install isort flake8 interrogate
+          echo "## CI/CD Summary :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "-------------------------" >> $GITHUB_STEP_SUMMARY
+      - name: Check imports with isort
+        run: |
+          # Show the diffs for debugging
+          isort -c dasf/
+          if [[ $? -ne 0 ]] ; then
+              echo "* **isort results:**" >> $GITHUB_STEP_SUMMARY
+              echo "```diff" >> $GITHUB_STEP_SUMMARY
+              isort -c --df dasf/ >> $GITHUB_STEP_SUMMARY
+              echo "```" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          else
+              echo "* **isort results:** :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+              exit 0
+          fi
+      - name: Lint with flake8
+        run: |
+          # stop the build if there are Python syntax errors or undefined names
+          flake8 dasf/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          flake8 dasf/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          if [[ $? -ne 0 ]] ; then
+              echo "* **flake8 results:**" >> $GITHUB_STEP_SUMMARY
+              echo "```python" >> $GITHUB_STEP_SUMMARY
+              flake8 dasf/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> $GITHUB_STEP_SUMMARY
+              echo "```" >> $GITHUB_STEP_SUMMARY
+              exit 1
+          else
+              echo "* **flake8 results:** :white_check_mark:" >> $GITHUB_STEP_SUMMARY
+              exit 0
+          fi
+      - name: Doc lint with interrogate
+        run: |
+          echo "* **interrogate results:** $(interrogate -i --fail-under=15 dasf/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
+          # We should have at least 80% of docs covered
+          interrogate -vv -i --fail-under=45 --badge-format svg -g . -e build/ -e tests/
