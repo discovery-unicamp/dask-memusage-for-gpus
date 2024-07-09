@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import xml.etree.ElementTree as ET
 import subprocess
-
+import xml.etree.ElementTree as ET
 from time import sleep
 
 from . import definitions as defs

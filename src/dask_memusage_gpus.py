@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 import asyncio
-import click
 import csv
 
+import click
 from distributed.diagnostics.plugin import SchedulerPlugin
 
 from . import definitions as defs
