@@ -14,7 +14,7 @@ class TestUtils(unittest.TestCase):
         fixture = os.path.join(os.path.dirname(__file__), "fixtures/nvidia_smi.1.xml")
 
         with patch("dask_memusage_for_gpus.utils.run_cmd") as run_cmd:
-            with open(fixture, "r") as xml:
+            with open(fixture, "rb") as xml:
                 run_cmd.return_value = xml.readlines()
 
             processes = utils.generate_gpu_proccesses()
