@@ -25,11 +25,11 @@ jobs:
       - name: Check imports with isort
         run: |
           # Show the diffs for debugging
-          isort -c src/
+          isort -c dask_memusage_for_gpus/
           if [[ $? -ne 0 ]] ; then
               echo "* **isort results:**" >> $GITHUB_STEP_SUMMARY
               echo "```diff" >> $GITHUB_STEP_SUMMARY
-              isort -c --df src/ >> $GITHUB_STEP_SUMMARY
+              isort -c --df dask_memusage_for_gpus/ >> $GITHUB_STEP_SUMMARY
               echo "```" >> $GITHUB_STEP_SUMMARY
               exit 1
           else
@@ -39,13 +39,13 @@ jobs:
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
-          flake8 src/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 dask_memusage_for_gpus/ --count --select=E9,F63,F7,F82 --show-source --statistics
           # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
-          flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 dask_memusage_for_gpus/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
           if [[ $? -ne 0 ]] ; then
               echo "* **flake8 results:**" >> $GITHUB_STEP_SUMMARY
               echo "```python" >> $GITHUB_STEP_SUMMARY
-              flake8 src/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> $GITHUB_STEP_SUMMARY
+              flake8 dask_memusage_for_gpus/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics >> $GITHUB_STEP_SUMMARY
               echo "```" >> $GITHUB_STEP_SUMMARY
               exit 1
           else
@@ -54,6 +54,6 @@ jobs:
           fi
       - name: Doc lint with interrogate
         run: |
-          echo "* **interrogate results:** $(interrogate -i --fail-under=15 src/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
+          echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_for_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
           # We should have at least 80% of docs covered
           interrogate -vv -i --fail-under=45 --badge-format svg -g . -e build/ -e tests/
