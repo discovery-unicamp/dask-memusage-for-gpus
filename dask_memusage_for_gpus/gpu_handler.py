@@ -44,6 +44,7 @@ class WorkersThread(Thread):
 
         # create other internal variables
         self._loop = None
+        self._task = None
         self._poll_task = None
 
     def run(self):
@@ -68,13 +69,17 @@ class WorkersThread(Thread):
 
     def stop(self):
         """ Stop the async loop event. """
-        self._loop.call_soon_threadsafe(self._loop.stop)
+
+        if self._loop:
+            self._loop.call_soon_threadsafe(self._loop.stop)
 
         logger.info("Memory loop thread is stopped.")
 
     def cancel(self):
         """ Cancel the async task. """
-        self._task.cancel()
+
+        if self._task:
+            self._task.cancel()
 
         logger.info("Memory loop thread is cancelled.")
 

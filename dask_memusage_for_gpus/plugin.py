@@ -24,6 +24,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         self._workers_thread = gpu.WorkersThread(self._scheduler.address,
                                                  self._interval)
 
+        self._workers_thread.start()
+
     def _setup_filetype(self):
         if self._filetype.upper() == "CSV":
             with open(self._path, "w", buffering=1) as fd:
