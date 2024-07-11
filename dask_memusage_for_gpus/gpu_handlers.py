@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import asyncio
+import logging
 from collections import defaultdict
 from contextlib import suppress
 from dataclasses import dataclass
@@ -9,6 +10,9 @@ from threading import Thread
 from distributed.client import Client
 
 from dask_memusage_for_gpus import utils
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -44,6 +48,9 @@ class WorkersThread(Thread):
 
     def run(self):
         """ Main thread loop. """
+
+        logger.info("Memory loop thread is running.")
+
         self._loop = asyncio.new_event_loop()
         loop = self._loop
         asyncio.set_event_loop(loop)
@@ -63,9 +70,13 @@ class WorkersThread(Thread):
         """ Stop the async loop event. """
         self._loop.call_soon_threadsafe(self._loop.stop)
 
+        logger.info("Memory loop thread is stopped.")
+
     def cancel(self):
         """ Cancel the async task. """
         self._task.cancel()
+
+        logger.info("Memory loop thread is cancelled.")
 
     def fetch_task_used_memory(self, worker_address):
         """
@@ -81,6 +92,8 @@ class WorkersThread(Thread):
         if not result:
             result = [0]
 
+        logger.debug("Cleaning the worker memory list.")
+
         self._worker_memory[worker_address].clear()
 
         return result
@@ -90,10 +103,14 @@ class WorkersThread(Thread):
 
         client = Client(self._scheduler_address, timeout=30)
 
+        logger.debug("Main memory loop function running.")
+
         while True:
             worker_gpu_mem = client.run(utils.get_worker_gpu_memory_used)
 
             for address, memory in worker_gpu_mem.items():
                 self._worker_memory[address].append(memory)
+
+                logger.debug(f"Appending {memory} MiB into worker ID '{address}'.")
 
             await asyncio.sleep(self._interval)
