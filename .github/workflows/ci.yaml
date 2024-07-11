@@ -66,5 +66,5 @@ jobs:
       - uses: actions/checkout@v4
       - name: Run test cases
         run: |
-          python3 -m pip install pytest pytest-coverage
+          python3 -m pip install pytest pytest-coverage mock
           pytest --cov-report xml:xml/coverage.xml tests/
