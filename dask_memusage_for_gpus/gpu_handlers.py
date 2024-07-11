@@ -18,7 +18,16 @@ class GPUProcess(dict):
 
 
 class Worker(Thread):
-    """ Worker stanza to fetch GPU used memory
+    """
+    Worker stanza to fetch GPU used memory
+
+    Parameters
+    ----------
+    scheduler_address : string
+        Addres of the Dask Scheduler.
+    interval : int
+        Interval of the time to fetch the GPU used memory by the plugin
+        daemon.
     """
     def __init__(self, scheduler_address: str, interval: int):
         super().__init__()
@@ -31,6 +40,7 @@ class Worker(Thread):
         self._poll_task = None
 
     def run(self):
+        """ Main thread loop. """
         self._loop = asyncio.new_event_loop()
         loop = self._loop
         asyncio.set_event_loop(loop)
@@ -47,12 +57,15 @@ class Worker(Thread):
             loop.close()
 
     def stop(self):
+        """ Stop the async loop event. """
         self._loop.call_soon_threadsafe(self._loop.stop)
 
     def cancel(self):
+        """ Cancel the async task. """
         self._task.cancel()
 
     async def _memory_loop(self):
+        """ Background function to monitor GPU used memory per process. """
         while True:
             processes = utils.generate_gpu_proccesses()
 

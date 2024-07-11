@@ -9,6 +9,28 @@ from dask_memusage_for_gpus import gpu_handlers as gpus
 
 
 def run_cmd(cmd, shell=True):
+    """
+    Run a command line using python Popen.
+
+    Parameters
+    ----------
+    cmd : str or list of str
+        Command line to be executed by this function. It needs to be a list
+        of strings if the parameter `shell` is False.
+    shell : boolean, optional
+        If the command line passed to this function is a command line or a
+        shell script (default=True).
+
+    Returns
+    -------
+    string
+        Stdout in a string
+
+    Raises
+    ------
+    CMDException
+        If the process returns an error.
+    """
     p = subprocess.Popen(cmd,
                          stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE,
@@ -27,6 +49,14 @@ def run_cmd(cmd, shell=True):
 
 
 def generate_gpu_proccesses():
+    """
+    Parse the XML output returned by `nvidia_smi` command.
+
+    Returns
+    -------
+    list
+        A list of objects GPUProcess.
+    """
     output = ""
     for line in run_cmd(defs.NVIDIA_SMI_QUERY_XML_CMD):
         output += line
