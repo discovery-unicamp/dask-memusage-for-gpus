@@ -7,7 +7,7 @@ from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
 from dask_memusage_for_gpus import definitions as defs
-from dask_memusage_for_gpus import gpu_handlers as gpus
+from dask_memusage_for_gpus import gpu_handler as gpu
 
 
 class MemoryUsageGPUsPlugin(SchedulerPlugin):
@@ -21,8 +21,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
         self._setup_filetype()
 
-        self._workers_thread = gpus.WorkersThread(self._scheduler.address,
-                                                  self._interval)
+        self._workers_thread = gpu.WorkersThread(self._scheduler.address,
+                                                 self._interval)
 
     def _setup_filetype(self):
         if self._filetype.upper() == "CSV":

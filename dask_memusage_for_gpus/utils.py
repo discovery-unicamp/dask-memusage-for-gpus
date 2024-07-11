@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from time import sleep
 
 from dask_memusage_for_gpus import definitions as defs
-from dask_memusage_for_gpus import gpu_handlers as gpus
+from dask_memusage_for_gpus import gpu_handler as gpu
 
 
 def run_cmd(cmd, shell=True):
@@ -79,9 +79,9 @@ def generate_gpu_proccesses():
                                 elif process_info.tag == "used_memory":
                                     memory = process_info.text.split(' ')
                                     memory = float(memory[0])
-                            processes.append(gpus.GPUProcess(pid=pid,
-                                                             name=name,
-                                                             memory_used=memory))
+                            processes.append(gpu.GPUProcess(pid=pid,
+                                                            name=name,
+                                                            memory_used=memory))
     return processes
 
 
