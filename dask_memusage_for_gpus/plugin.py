@@ -57,8 +57,14 @@ def validate_file_type(filetype):
 @click.option("--memusage-for-gpus-path", default=defs.DEFAULT_DATA_FILE)
 @click.option("--memusage-for-gpus-type", default=defs.CSV)
 @click.option("--memusage-for-gpus-interval", default=1)
-def dask_setup(scheduler: Scheduler, path: str, filetype: str, interval: int):
-    validate_file_type(filetype)
+def dask_setup(scheduler: Scheduler,
+               memusage_for_gpus_path: str,
+               memusage_for_gpus_type: str,
+               memusage_for_gpus_interval: int):
+    validate_file_type(memusage_for_gpus_type)
 
-    plugin = MemoryUsageGPUsPlugin(scheduler, path, filetype, interval)
+    plugin = MemoryUsageGPUsPlugin(scheduler,
+                                   memusage_for_gpus_path, 
+                                   memusage_for_gpus_type,
+                                   memusage_for_gpus_interval)
     scheduler.add_plugin(plugin)
