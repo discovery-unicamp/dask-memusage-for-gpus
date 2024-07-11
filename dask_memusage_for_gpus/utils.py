@@ -60,7 +60,7 @@ def generate_gpu_proccesses():
     """
     output = ""
     for line in run_cmd(defs.NVIDIA_SMI_QUERY_XML_CMD):
-        output += line
+        output += line.decode("utf-8")
 
     root = ET.fromstring(output)
 
