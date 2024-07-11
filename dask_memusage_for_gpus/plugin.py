@@ -66,7 +66,7 @@ def dask_setup(scheduler: Scheduler,
     validate_file_type(memusage_for_gpus_type)
 
     plugin = MemoryUsageGPUsPlugin(scheduler,
-                                   memusage_for_gpus_path, 
+                                   memusage_for_gpus_path,
                                    memusage_for_gpus_type,
                                    memusage_for_gpus_interval)
     scheduler.add_plugin(plugin)
