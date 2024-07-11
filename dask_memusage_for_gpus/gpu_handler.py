@@ -11,7 +11,6 @@ from distributed.client import Client
 
 from dask_memusage_for_gpus import utils
 
-
 logger = logging.getLogger(__name__)
 
 
