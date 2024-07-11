@@ -3,7 +3,7 @@
 import os
 import unittest
 
-from mock import Mock, patch
+from mock import patch
 
 from dask_memusage_for_gpus import utils
 
@@ -11,7 +11,7 @@ from dask_memusage_for_gpus import utils
 class TestUtils(unittest.TestCase):
     """ Test class for utils submodule. """
     def test_generate_gpu_proccesses(self):
-        fixture = os.path.join(os.path.dirname(__file__),"fixtures/nvidia_smi.1.xml")
+        fixture = os.path.join(os.path.dirname(__file__), "fixtures/nvidia_smi.1.xml")
 
         with patch("dask_memusage_for_gpus.utils.run_cmd") as run_cmd:
             with open(fixture, "r") as xml:

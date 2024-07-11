@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import subprocess
 import xml.etree.ElementTree as ET
 from time import sleep
@@ -82,3 +83,21 @@ def generate_gpu_proccesses():
                                                              name=name,
                                                              memory_used=memory))
     return processes
+
+
+def get_worker_gpu_memory_used():
+    """
+    Returns the GPU used memory per worker.
+
+    Returns
+    -------
+    integer
+        The used memory in MiB.
+    """
+    processes = generate_gpu_proccesses()
+
+    for process in processes:
+        if process.pid == os.getpid() and "python" in process.name:
+            return int(process.memory_used)
+
+    return 0

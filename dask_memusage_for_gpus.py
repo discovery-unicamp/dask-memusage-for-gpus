@@ -1,32 +1,50 @@
 #!/usr/bin/env python3
 
-import asyncio
 import csv
 
 import click
-from distributed.client import Client
 from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
-from . import definitions as defs
+from dask_memusage_for_gpus import definitions as defs
+from dask_memusage_for_gpus import gpu_handlers as gpus
 
 
 class MemoryUsageGPUsPlugin(SchedulerPlugin):
-    def __init__(self, scheduler: Scheduler, path: str, filetype: str):
+    def __init__(self, scheduler: Scheduler, path: str, filetype: str, interval: int):
         SchedulerPlugin.__init__(self)
 
-        self.scheduler = scheduler
-        self.__path = path
-        self.__filetype = filetype
+        self._scheduler = scheduler
+        self._path = path
+        self._filetype = filetype
+        self._interval = interval
+
+        self._setup_filetype()
+
+        self._workers_thread = gpus.WorkersThread(self._scheduler.address,
+                                                  self._interval)
+
+    def _setup_filetype(self):
+        if self._filetype.upper() == "CSV":
+            with open(self._path, "w", buffering=1) as fd:
+                self._csv = csv.writer(fd)
+                self._csv.writerow(["task_key",
+                                    "min_gpu_memory_mb",
+                                    "max_gpu_memory_mb"])
+
+    def _register(self, key, min_gpu_mem_usage, max_gpu_mem_usage):
+        if self._filetype.upper() == "CSV":
+            self._csv.writerow([key, min_gpu_mem_usage, max_gpu_mem_usage])
 
     def transition(self, key, start, finish, *args, **kwargs):
         if start == 'processing' and finish in ("memory", "erred"):
-            memory_usage = self._worker_memory.memory_for_task(worker_address)
-            max_memory_usage = max(memory_usage)
-            min_memory_usage = min(memory_usage)
+            memory_usage = self._workers_thread.fetch_task_used_memory(kwargs["worker"])
+            max_gpu_mem_usage = max(memory_usage)
+            min_gpu_mem_usage = min(memory_usage)
+            self._register(key, min_gpu_mem_usage, max_gpu_mem_usage)
 
     def before_close(self):
-        pass
+        self._workers_thread.cancel()
 
 
 def validate_file_type(filetype):
@@ -36,10 +54,11 @@ def validate_file_type(filetype):
 
 
 @click.command()
-@click.option("--memusage-gpus-path", default=defs.DEFAULT_DATA_FILE)
-@click.option("--memusage-gpus-type", default=defs.CSV)
-def dask_setup(scheduler: Scheduler, path: str, filetype: str):
+@click.option("--memusage-for-gpus-path", default=defs.DEFAULT_DATA_FILE)
+@click.option("--memusage-for-gpus-type", default=defs.CSV)
+@click.option("--memusage-for-gpus-interval", default=1)
+def dask_setup(scheduler: Scheduler, path: str, filetype: str, interval: int):
     validate_file_type(filetype)
 
-    plugin = MemoryUsageGPUsPlugin(scheduler, path, filetype)
+    plugin = MemoryUsageGPUsPlugin(scheduler, path, filetype, interval)
     scheduler.add_plugin(plugin)
