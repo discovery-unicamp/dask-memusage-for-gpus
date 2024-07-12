@@ -7,6 +7,7 @@ from contextlib import suppress
 from dataclasses import dataclass
 from threading import Thread
 
+import dask
 from distributed.client import Client
 
 from dask_memusage_for_gpus import utils
