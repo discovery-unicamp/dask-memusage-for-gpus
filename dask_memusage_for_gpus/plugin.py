@@ -26,17 +26,21 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
         self._workers_thread.start()
 
+    def __write_csv(self, row, mode="w"):
+        if isinstance(row, list):
+            with open(self._path, mode, buffering=1) as fd:
+                csv_file = csv.writer(fd)
+                csv_file.writerow(row)
+
     def _setup_filetype(self):
         if self._filetype.upper() == "CSV":
-            with open(self._path, "w", buffering=1) as fd:
-                self._csv = csv.writer(fd)
-                self._csv.writerow(["task_key",
-                                    "min_gpu_memory_mb",
-                                    "max_gpu_memory_mb"])
+            self.__write_csv(["task_key",
+                              "min_gpu_memory_mb",
+                              "max_gpu_memory_mb"])
 
     def _register(self, key, min_gpu_mem_usage, max_gpu_mem_usage):
         if self._filetype.upper() == "CSV":
-            self._csv.writerow([key, min_gpu_mem_usage, max_gpu_mem_usage])
+            self.__write_csv([key, min_gpu_mem_usage, max_gpu_mem_usage], mode="a")
 
     def transition(self, key, start, finish, *args, **kwargs):
         if start == 'processing' and finish in ("memory", "erred"):
