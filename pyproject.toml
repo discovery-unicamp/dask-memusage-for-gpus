@@ -1,12 +1,12 @@
 [tool.poetry]
-name = "dask-memusage-for-gpus"
+name = "dask-memusage-gpus"
 version = "1.0"
 description = "A Dask Scheduler Plugin to monitor GPU memory usage for tasks"
 authors = ["Julio Faracco <jcfaracco@gmail.com>"]
 maintainers = ["Julio Faracco <jcfaracco@gmail.com>"]
 license = "MIT"
-homepage = "https://github.com/discovery-unicamp/dask-memusage-for-gpus"
-repository = "https://github.com/discovery-unicamp/dask-memusage-for-gpus"
+homepage = "https://github.com/discovery-unicamp/dask-memusage-gpus"
+repository = "https://github.com/discovery-unicamp/dask-memusage-gpus"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
@@ -47,11 +47,11 @@ pandoc = "*"
 profile = "black"
 
 [tool.coverage.paths]
-source = ["dask-memusage-for-gpus", "*/site-packages"]
+source = ["dask-memusage-gpus", "*/site-packages"]
 
 [tool.coverage.run]
 branch = true
-source = ["dask-memusage-for-gpus"]
+source = ["dask-memusage-gpus"]
 
 [tool.coverage.report]
 exclude_also = [

@@ -7,8 +7,8 @@ import subprocess
 import xml.etree.ElementTree as ET
 from time import sleep
 
-from dask_memusage_for_gpus import definitions as defs
-from dask_memusage_for_gpus import gpu_handler as gpu
+from dask_memusage_gpus import definitions as defs
+from dask_memusage_gpus import gpu_handler as gpu
 
 
 def run_cmd(cmd, shell=True):

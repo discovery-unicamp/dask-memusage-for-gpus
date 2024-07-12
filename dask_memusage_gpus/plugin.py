@@ -8,8 +8,8 @@ import click
 from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
-from dask_memusage_for_gpus import definitions as defs
-from dask_memusage_for_gpus import gpu_handler as gpu
+from dask_memusage_gpus import definitions as defs
+from dask_memusage_gpus import gpu_handler as gpu
 
 
 class MemoryUsageGPUsPlugin(SchedulerPlugin):
@@ -144,13 +144,13 @@ def validate_file_type(filetype):
 
 
 @click.command()
-@click.option("--memusage-for-gpus-path", default=defs.DEFAULT_DATA_FILE)
-@click.option("--memusage-for-gpus-type", default=defs.CSV)
-@click.option("--memusage-for-gpus-interval", default=1)
+@click.option("--memusage-gpus-path", default=defs.DEFAULT_DATA_FILE)
+@click.option("--memusage-gpus-type", default=defs.CSV)
+@click.option("--memusage-gpus-interval", default=1)
 def dask_setup(scheduler: Scheduler,
-               memusage_for_gpus_path: str,
-               memusage_for_gpus_type: str,
-               memusage_for_gpus_interval: int):
+               memusage_gpus_path: str,
+               memusage_gpus_type: str,
+               memusage_gpus_interval: int):
     """
     Setup Dask Scheduler Plugin.
 
@@ -158,18 +158,18 @@ def dask_setup(scheduler: Scheduler,
     ----------
     scheduler : Scheduler
         Dask Scheduler object.
-    memusage_for_gpus_path : string
+    memusage_gpus_path : string
         Path of the record file.
-    memusage_for_gpus_filetype : string
+    memusage_gpus_filetype : string
         Type of the record file. It can be CSV, JSON or dataframe.
-    memusage_for_gpus_interval : int
+    memusage_gpus_interval : int
         Interval of the time to fetch the GPU used memory by the plugin
         daemon.
     """
-    validate_file_type(memusage_for_gpus_type)
+    validate_file_type(memusage_gpus_type)
 
     plugin = MemoryUsageGPUsPlugin(scheduler,
-                                   memusage_for_gpus_path,
-                                   memusage_for_gpus_type,
-                                   memusage_for_gpus_interval)
+                                   memusage_gpus_path,
+                                   memusage_gpus_type,
+                                   memusage_gpus_interval)
     scheduler.add_plugin(plugin)

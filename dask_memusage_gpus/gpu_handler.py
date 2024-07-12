@@ -12,7 +12,7 @@ from threading import Thread
 import dask
 from distributed.client import Client
 
-from dask_memusage_for_gpus import utils
+from dask_memusage_gpus import utils
 
 logger = logging.getLogger(__name__)
 
