@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" All kinds of functions that are common to other modules. """
+
 import os
 import subprocess
 import xml.etree.ElementTree as ET
@@ -64,13 +66,18 @@ def generate_gpu_proccesses():
 
     root = ET.fromstring(output)
 
-    processes = list()
+    processes = []
     for child in root:
         if child.tag == "gpu":
             for gpu_child in child:
                 if gpu_child.tag == "processes":
                     for process in gpu_child:
                         if process.tag == "process_info":
+
+                            pid = -1
+                            name = None
+                            memory = 0
+
                             for process_info in process:
                                 if process_info.tag == "pid":
                                     pid = int(process_info.text)
@@ -79,6 +86,7 @@ def generate_gpu_proccesses():
                                 elif process_info.tag == "used_memory":
                                     memory = process_info.text.split(' ')
                                     memory = float(memory[0])
+
                             processes.append(gpu.GPUProcess(pid=pid,
                                                             name=name,
                                                             memory_used=memory))

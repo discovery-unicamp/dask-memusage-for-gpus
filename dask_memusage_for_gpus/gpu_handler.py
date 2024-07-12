@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" GPU functions and objects to deal with structured data. """
+
 import asyncio
 import logging
 from collections import defaultdict
@@ -36,6 +38,7 @@ class WorkersThread(Thread):
         daemon.
     """
     def __init__(self, scheduler_address: str, interval: int):
+        """ Constructor of the WorkersThread class. """
         super().__init__()
 
         self._scheduler_address = scheduler_address
@@ -123,7 +126,7 @@ class WorkersThread(Thread):
 
             for address, memory in worker_gpu_mem.items():
                 if address not in self._worker_memory:
-                    self._worker_memory[address] = list()
+                    self._worker_memory[address] = []
 
                 self._worker_memory[address].append(memory)
 

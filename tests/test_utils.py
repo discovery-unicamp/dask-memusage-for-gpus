@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" Test all the structures and funtions inside utils submodule. """
+
 import os
 import unittest
 
@@ -11,6 +13,7 @@ from dask_memusage_for_gpus import utils
 class TestUtils(unittest.TestCase):
     """ Test class for utils submodule. """
     def test_generate_gpu_proccesses(self):
+        """ Test general usage of function generate_gpu_proccesses(). """
         fixture = os.path.join(os.path.dirname(__file__), "fixtures/nvidia_smi.1.xml")
 
         with patch("dask_memusage_for_gpus.utils.run_cmd") as run_cmd:
