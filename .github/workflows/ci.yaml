@@ -56,7 +56,7 @@ jobs:
         run: |
           echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_for_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
           # We should have at least 80% of docs covered
-          interrogate -vv -i --fail-under=45 --badge-format svg -g . -e build/ -e tests/
+          interrogate -vv -i --fail-under=90 --badge-format svg -g . -e build/ -e tests/
 
   tests:
     runs-on: ubuntu-latest
@@ -64,7 +64,9 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          python3 -m pip install pytest pytest-coverage mock distributed dask
       - name: Run test cases
         run: |
-          python3 -m pip install pytest pytest-coverage mock distributed
           pytest --cov-report xml:xml/coverage.xml tests/
