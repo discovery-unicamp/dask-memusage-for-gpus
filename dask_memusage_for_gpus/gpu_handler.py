@@ -107,7 +107,7 @@ class WorkersThread(Thread):
 
         logger.debug("Cleaning the worker memory list.")
 
-        self._worker_memory[worker_address].clear()
+#        self._worker_memory[worker_address].clear()
 
         return (mem_min, mem_max)
 
