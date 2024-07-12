@@ -44,9 +44,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
     def transition(self, key, start, finish, *args, **kwargs):
         if start == 'processing' and finish in ("memory", "erred"):
-            memory_usage = self._workers_thread.fetch_task_used_memory(kwargs["worker"])
-            max_gpu_mem_usage = max(memory_usage)
-            min_gpu_mem_usage = min(memory_usage)
+            min_gpu_mem_usage, max_gpu_mem_usage = \
+                self._workers_thread.fetch_task_used_memory(kwargs["worker"])
             self._register(key, min_gpu_mem_usage, max_gpu_mem_usage)
 
     def before_close(self):

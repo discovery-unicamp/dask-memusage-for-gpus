@@ -99,16 +99,17 @@ class WorkersThread(Thread):
         list
             Tracked memory usage per worker
         """
-        result = self._worker_memory[worker_address]
+        if not self._worker_memory[worker_address]:
+            return (0, 0)
 
-        if not result:
-            result = [0]
+        mem_max = max(self._worker_memory[worker_address])
+        mem_min = min(self._worker_memory[worker_address])
 
         logger.debug("Cleaning the worker memory list.")
 
         self._worker_memory[worker_address].clear()
 
-        return result
+        return (mem_min, mem_max)
 
     async def _memory_loop(self):
         """ Background function to monitor GPU used memory per process. """
