@@ -92,7 +92,7 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
             self.__write_csv([key, min_gpu_mem_usage,
                               max_gpu_mem_usage, worker_id], mode="a")
 
-    def transition(self, key, start, finish, stimulus_id, *args, **kwargs):
+    def transition(self, key, start, finish, *args, **kwargs):
         """
         Transition function when a task is being processed.
 
@@ -105,8 +105,6 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
             processing, memory, error.
         finish : string
             Final state of the transition.
-        stimulus_id : string
-            ID of stimulus causing the transition.
         *args, **kwargs : Any
             More options passed when transitioning This may include
             worker ID, compute time, etc.
