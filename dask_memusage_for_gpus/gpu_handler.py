@@ -41,6 +41,13 @@ class WorkersThread(Thread):
         self._interval = interval
         self._worker_memory = defaultdict()
 
+        try:
+            logger.setLevel(
+                    dask.config.get("distributed.logging.distributed__scheduler")
+            )
+        except KeyError:
+            logger.setLevel(logging.INFO)
+
         # create other internal variables
         self._loop = None
         self._task = None
@@ -113,6 +120,9 @@ class WorkersThread(Thread):
             worker_gpu_mem = client.run(utils.get_worker_gpu_memory_used)
 
             for address, memory in worker_gpu_mem.items():
+                if address not in self._worker_memory:
+                    self._worker_memory[address] = list()
+
                 self._worker_memory[address].append(memory)
 
                 logger.debug(f"Appending {memory} MiB into worker ID '{address}'.")
