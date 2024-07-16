@@ -48,7 +48,7 @@ def run_cmd(cmd, shell=True):
 
     err = p.stderr.read()
     if p.returncode != 0:
-        raise defs.CMDException("Error: " + str(err))
+        raise defs.CMDException("Error: " + err.decode('utf-8'))
 
 
 def generate_gpu_proccesses():
