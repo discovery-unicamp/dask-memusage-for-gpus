@@ -1,0 +1,74 @@
+<?xml version="1.0" ?>
+<!DOCTYPE nvidia_smi_log SYSTEM "nvsmi_device_v12.dtd">
+<nvidia_smi_log>
+	<timestamp>Wed Jul 10 15:44:26 2024</timestamp>
+	<driver_version>545.23.08</driver_version>
+	<cuda_version>12.3</cuda_version>
+	<attached_gpus>1</attached_gpus>
+	<gpu id="00000000:01:00.0">
+		<product_name>NVIDIA GeForce RTX 3050 Laptop GPU</product_name>
+		<product_brand>GeForce</product_brand>
+		<product_architecture>Ampere</product_architecture>
+		<display_mode>Disabled</display_mode>
+		<display_active>Disabled</display_active>
+		<persistence_mode>Disabled</persistence_mode>
+		<addressing_mode>None</addressing_mode>
+		<mig_mode>
+			<current_mig>N/A</current_mig>
+			<pending_mig>N/A</pending_mig>
+		</mig_mode>
+		<mig_devices>
+			None
+		</mig_devices>
+		<accounting_mode>Disabled</accounting_mode>
+		<accounting_mode_buffer_size>4000</accounting_mode_buffer_size>
+		<driver_model>
+			<current_dm>N/A</current_dm>
+			<pending_dm>N/A</pending_dm>
+		</driver_model>
+		<serial>N/A</serial>
+		<uuid>GPU-cc4c62f9-8fdb-e0e4-4e49-fa0a608b1a30</uuid>
+		<minor_number>0</minor_number>
+		<vbios_version>94.07.2B.00.61</vbios_version>
+		<multigpu_board>No</multigpu_board>
+		<board_id>0x100</board_id>
+		<board_part_number>N/A</board_part_number>
+		<gpu_part_number>25A2-725-A1</gpu_part_number>
+		<gpu_fru_part_number>N/A</gpu_fru_part_number>
+		<gpu_module_id>1</gpu_module_id>
+		<inforom_version>
+			<img_version>G001.0000.03.03</img_version>
+			<oem_object>2.0</oem_object>
+			<ecc_object>N/A</ecc_object>
+			<pwr_object>N/A</pwr_object>
+		</inforom_version>
+		<inforom_bbx_flush>
+			<latest_timestamp>N/A</latest_timestamp>
+			<latest_duration>N/A</latest_duration>
+		</inforom_bbx_flush>
+		<gpu_operation_mode>
+			<current_gom>N/A</current_gom>
+			<pending_gom>N/A</pending_gom>
+		</gpu_operation_mode>
+		<gsp_firmware_version>N/A</gsp_firmware_version>
+		<c2c_mode>N/A</c2c_mode>
+		<gpu_virtualization_mode>
+			<virtualization_mode>None</virtualization_mode>
+			<host_vgpu_mode>N/A</host_vgpu_mode>
+		</gpu_virtualization_mode>
+		<gpu_reset_status>
+			<reset_required>No</reset_required>
+			<drain_and_reset_recommended>N/A</drain_and_reset_recommended>
+		</gpu_reset_status>
+		<ibmnpu>
+			<relaxed_ordering_mode>N/A</relaxed_ordering_mode>
+		</ibmnpu>
+		<processes>
+			<foo>
+			</foo>
+		</processes>
+		<accounted_processes>
+		</accounted_processes>
+	</gpu>
+
+</nvidia_smi_log>
