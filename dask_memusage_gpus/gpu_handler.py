@@ -36,13 +36,16 @@ class WorkersThread(Thread):
     interval : int
         Interval of the time to fetch the GPU used memory by the plugin
         daemon.
+    mem_max : bool
+        Collect only maximum memory usage.
     """
-    def __init__(self, scheduler_address: str, interval: int):
+    def __init__(self, scheduler_address: str, interval: int, mem_max: bool):
         """ Constructor of the WorkersThread class. """
         super().__init__()
 
         self._scheduler_address = scheduler_address
         self._interval = interval
+        self._mem_max = mem_max
         self._worker_memory = defaultdict()
 
         try:
@@ -108,9 +111,15 @@ class WorkersThread(Thread):
         mem_max = max(self._worker_memory[worker_address])
         mem_min = min(self._worker_memory[worker_address])
 
-        logger.debug("Cleaning the worker memory list.")
+        if not self._mem_max:
+            last = self._worker_memory[worker_address][-1]
 
-#        self._worker_memory[worker_address].clear()
+            logger.debug("Cleaning the worker memory list.")
+
+            self._worker_memory[worker_address].clear()
+
+            # Lets make sure the array is not fully empty
+            self._worker_memory[worker_address].append(last)
 
         return (mem_min, mem_max)
 

@@ -27,8 +27,11 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
     interval : int
         Interval of the time to fetch the GPU used memory by the plugin
         daemon.
+    mem_max : bool
+        Collect maximum memory usage.
     """
-    def __init__(self, scheduler: Scheduler, path: str, filetype: str, interval: int):
+    def __init__(self, scheduler: Scheduler, path: str, filetype: str,
+                 interval: int, mem_max: bool):
         """ Constructor of the MemoryUsageGPUsPlugin class. """
         SchedulerPlugin.__init__(self)
 
@@ -36,6 +39,7 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         self._path = path
         self._filetype = filetype
         self._interval = interval
+        self._mem_max = mem_max
 
         self._setup_filetype()
 
@@ -145,10 +149,12 @@ def validate_file_type(filetype):
 @click.option("--memusage-gpus-path", default=defs.DEFAULT_DATA_FILE)
 @click.option("--memusage-gpus-type", default=defs.CSV)
 @click.option("--memusage-gpus-interval", default=1)
+@click.option("--memusage-gpus-max", default=False)
 def dask_setup(scheduler: Scheduler,
                memusage_gpus_path: str,
                memusage_gpus_type: str,
-               memusage_gpus_interval: int):
+               memusage_gpus_interval: int,
+               memusage_gpus_max: bool):
     """
     Setup Dask Scheduler Plugin.
 
@@ -163,11 +169,14 @@ def dask_setup(scheduler: Scheduler,
     memusage_gpus_interval : int
         Interval of the time to fetch the GPU used memory by the plugin
         daemon.
+    memusage_gpus_max : bool
+        Run plugin collection maximum memory usage.
     """
     validate_file_type(memusage_gpus_type)
 
     plugin = MemoryUsageGPUsPlugin(scheduler,
                                    memusage_gpus_path,
                                    memusage_gpus_type,
-                                   memusage_gpus_interval)
+                                   memusage_gpus_interval,
+                                   memusage_gpus_max)
     scheduler.add_plugin(plugin)
