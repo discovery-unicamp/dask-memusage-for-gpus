@@ -7,7 +7,7 @@ import logging
 from collections import defaultdict
 from contextlib import suppress
 from dataclasses import dataclass
-from threading import Thread
+from threading import Thread, Lock
 
 import dask
 from distributed.client import Client
@@ -43,10 +43,11 @@ class WorkersThread(Thread):
         """ Constructor of the WorkersThread class. """
         super().__init__()
 
-        self._scheduler_address = scheduler_address
-        self._interval = interval
-        self._mem_max = mem_max
-        self._worker_memory = defaultdict()
+        self._scheduler_address: str = scheduler_address
+        self._interval: int = interval
+        self._mem_max: bool = mem_max
+        self._worker_memory: dict[str, list] = defaultdict()
+        self._mutex = Lock()
 
         try:
             logger.setLevel(
@@ -105,23 +106,30 @@ class WorkersThread(Thread):
         list
             Tracked memory usage per worker
         """
-        if not self._worker_memory[worker_address]:
-            return (0, 0)
+        with self._mutex:
+            ret = (0, 0)
+            try:
+                if not self._worker_memory[worker_address]:
+                    return ret
 
-        mem_max = max(self._worker_memory[worker_address])
-        mem_min = min(self._worker_memory[worker_address])
+                mem_max = max(self._worker_memory[worker_address])
+                mem_min = min(self._worker_memory[worker_address])
 
-        if not self._mem_max:
-            last = self._worker_memory[worker_address][-1]
+                ret = (mem_min, mem_max)
 
-            logger.debug("Cleaning the worker memory list.")
+                if not self._mem_max:
+                    last = self._worker_memory[worker_address][-1]
 
-            self._worker_memory[worker_address].clear()
+                    logger.debug("Cleaning the worker memory list.")
 
-            # Lets make sure the array is not fully empty
-            self._worker_memory[worker_address].append(last)
+                    self._worker_memory[worker_address].clear()
 
-        return (mem_min, mem_max)
+                    # Lets make sure the array is not fully empty
+                    self._worker_memory[worker_address].append(last)
+            except Exception as e:
+                logger.error(str(e))
+
+        return ret
 
     async def _memory_loop(self):
         """ Background function to monitor GPU used memory per process. """
@@ -133,12 +141,17 @@ class WorkersThread(Thread):
         while True:
             worker_gpu_mem = client.run(utils.get_worker_gpu_memory_used)
 
-            for address, memory in worker_gpu_mem.items():
-                if address not in self._worker_memory:
-                    self._worker_memory[address] = []
+            with self._mutex:
+                try:
+                    for address, memory in worker_gpu_mem.items():
+                        if address not in self._worker_memory:
+                            self._worker_memory[address] = []
 
-                self._worker_memory[address].append(memory)
+                        self._worker_memory[address].append(memory)
 
-                logger.debug(f"Appending {memory} MiB into worker ID '{address}'.")
+                        logger.debug(f"Appending {memory} MiB into worker ID "
+                                     "'{address}'.")
+                except Exception as e:
+                    logger.error(str(e))
 
             await asyncio.sleep(self._interval)

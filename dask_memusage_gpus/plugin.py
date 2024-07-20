@@ -35,16 +35,17 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         """ Constructor of the MemoryUsageGPUsPlugin class. """
         SchedulerPlugin.__init__(self)
 
-        self._scheduler = scheduler
-        self._path = path
-        self._filetype = filetype
-        self._interval = interval
-        self._mem_max = mem_max
+        self._scheduler: Scheduler = scheduler
+        self._path: str = path
+        self._filetype: str = filetype
+        self._interval: int = interval
+        self._mem_max: bool = mem_max
 
         self._setup_filetype()
 
         self._workers_thread = gpu.WorkersThread(self._scheduler.address,
-                                                 self._interval)
+                                                 self._interval,
+                                                 self._mem_max)
 
         self._workers_thread.start()
 
