@@ -150,7 +150,7 @@ def validate_file_type(filetype):
 @click.option("--memusage-gpus-path", default=defs.DEFAULT_DATA_FILE)
 @click.option("--memusage-gpus-type", default=defs.CSV)
 @click.option("--memusage-gpus-interval", default=1)
-@click.option("--memusage-gpus-max", default=False)
+@click.option("--memusage-gpus-max", is_flag=True)
 def dask_setup(scheduler: Scheduler,
                memusage_gpus_path: str,
                memusage_gpus_type: str,
