@@ -7,7 +7,7 @@ import logging
 from collections import defaultdict
 from contextlib import suppress
 from dataclasses import dataclass
-from threading import Thread, Lock
+from threading import Lock, Thread
 
 import dask
 from distributed.client import Client
