@@ -108,9 +108,6 @@ class WorkersThread(Thread):
         with self._mutex:
             ret = (0, 0)
             try:
-                if not self._worker_memory[worker_address]:
-                    return ret
-
                 mem_min = min(self._worker_memory[worker_address])
 
                 if not self._mem_max:
