@@ -8,8 +8,10 @@ DEFAULT_DATA_FILE = "memory_usage_gpus.csv"
 CSV = "csv"
 PARQUET = "parquet"
 JSON = "json"
+EXCEL = "excel"
+XML = "xml"
 
-FILE_TYPES = [CSV, PARQUET, JSON]
+FILE_TYPES = [CSV, PARQUET, JSON, EXCEL, XML]
 
 NVIDIA_SMI_QUERY_XML_CMD = "nvidia-smi -q -x"
 
