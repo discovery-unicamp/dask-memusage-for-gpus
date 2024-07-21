@@ -112,10 +112,7 @@ class WorkersThread(Thread):
                 if not self._worker_memory[worker_address]:
                     return ret
 
-                mem_max = max(self._worker_memory[worker_address])
                 mem_min = min(self._worker_memory[worker_address])
-
-                ret = (mem_min, mem_max)
 
                 if not self._mem_max:
                     last = self._worker_memory[worker_address][-1]
@@ -126,6 +123,10 @@ class WorkersThread(Thread):
 
                     # Lets make sure the array is not fully empty
                     self._worker_memory[worker_address].append(last)
+
+                mem_max = max(self._worker_memory[worker_address])
+
+                ret = (mem_min, mem_max)
             except Exception as e:
                 logger.error(str(e))
 
@@ -141,17 +142,17 @@ class WorkersThread(Thread):
         while True:
             worker_gpu_mem = client.run(utils.get_worker_gpu_memory_used)
 
+            with open("test", "w") as fp:
+                fp.write(str(worker_gpu_mem))
+
             with self._mutex:
-                try:
-                    for address, memory in worker_gpu_mem.items():
-                        if address not in self._worker_memory:
-                            self._worker_memory[address] = []
+                for address, memory in worker_gpu_mem.items():
+                    if address not in self._worker_memory:
+                        self._worker_memory[address] = []
 
-                        self._worker_memory[address].append(memory)
+                    self._worker_memory[address].append(memory)
 
-                        logger.debug(f"Appending {memory} MiB into worker ID "
-                                     "'{address}'.")
-                except Exception as e:
-                    logger.error(str(e))
+                    logger.debug(f"Appending {memory} MiB into worker ID "
+                                 "'{address}'.")
 
             await asyncio.sleep(self._interval)
