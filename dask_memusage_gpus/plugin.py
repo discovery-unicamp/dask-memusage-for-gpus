@@ -57,11 +57,11 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         """
         Setup the record structure.
         """
-        self._record = pd.DataFrame(columns=["task_key",
-                                             "time",
-                                             "min_gpu_memory_mb",
-                                             "max_gpu_memory_mb",
-                                             "worker_id"])
+        self._record_df = pd.DataFrame(columns=["task_key",
+                                                "time",
+                                                "min_gpu_memory_mb",
+                                                "max_gpu_memory_mb",
+                                                "worker_id"])
 
     def _record(self, key, min_gpu_mem_usage, max_gpu_mem_usage, worker_id):
         """
@@ -86,21 +86,21 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
                    'worker_id': worker_id}
 
             new_row = pd.DataFrame([row])
-            self._record = pd.concat([self._record,
-                                      new_row], axis=0, ignore_index=True)
+            self._record_df = pd.concat([self._record_df,
+                                         new_row], axis=0, ignore_index=True)
 
             if self._filetype.upper() == "CSV":
                 header: bool = (not os.path.exists(self._path))
 
-                self._record.to_csv(self._path, mode='a', header=header)
+                self._record_df.to_csv(self._path, mode='a', header=header)
             elif self._filetype.upper() == "PARQUET":
-                self._record.to_parquet(self._path)
+                self._record_df.to_parquet(self._path)
             elif self._filetype.upper() == "JSON":
-                self._record.to_json(self._path)
+                self._record_df.to_json(self._path)
             elif self._filetype.upper() == "XML":
-                self._record.to_xml(self._path)
+                self._record_df.to_xml(self._path)
             elif self._filetype.upper() == "EXCEL":
-                self._record.to_excel(self._path, sheet_name='Dask GPUs', header=True)
+                self._record_df.to_excel(self._path, sheet_name='Dask GPUs', header=True)
 
     def transition(self, key, start, finish, *args, **kwargs):
         """
