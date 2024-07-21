@@ -55,6 +55,7 @@ jobs:
       - name: Lint with mypy
         run: |
           echo "* **Mypy results:** $(mypy dask_memusage_gpus/)" >> $GITHUB_STEP_SUMMARY
+          mypy --install-types --non-interactive
           mypy dask_memusage_gpus/          
       - name: Doc lint with interrogate
         run: |
