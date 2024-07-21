@@ -2,9 +2,12 @@
 
 """ Plugin class of the GPU Memory Usage. """
 
-import csv
+import os
+import time
+from threading import Lock
 
 import click
+import pandas as pd
 from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
@@ -41,7 +44,10 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         self._interval: int = interval
         self._mem_max: bool = mem_max
 
-        self._setup_filetype()
+        self._lock = Lock()
+        self._plugin_start = time.perf_counter()
+
+        self._setup_record()
 
         self._workers_thread = gpu.WorkersThread(self._scheduler.address,
                                                  self._interval,
@@ -49,34 +55,15 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
         self._workers_thread.start()
 
-    def __write_csv(self, row, mode="w"):
+    def _setup_record(self):
         """
-        Write a row in CSV file.
-
-        Parameters
-        ----------
-        row : list
-            The row to be written/appended in CSV file.
-        mode : string
-            Mode of the opened file (a new file or append into an existing
-            file).
+        Setup the record structure.
         """
-        if isinstance(row, list):
-            with open(self._path, mode, buffering=1) as fd:
-                csv_file = csv.writer(fd)
-                csv_file.writerow(row)
-
-    def _setup_filetype(self):
-        """
-        Setup a file type if necessary.
-
-        Obs: CVS requires the name of the columns first.
-        """
-        if self._filetype.upper() == "CSV":
-            self.__write_csv(["task_key",
-                              "min_gpu_memory_mb",
-                              "max_gpu_memory_mb",
-                              "worker_id"])
+        self._record = pd.DataFrame(columns=["task_key",
+                                             "time",
+                                             "min_gpu_memory_mb",
+                                             "max_gpu_memory_mb",
+                                             "worker_id"])
 
     def _record(self, key, min_gpu_mem_usage, max_gpu_mem_usage, worker_id):
         """
@@ -93,9 +80,21 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         worker_id : string
             Identification of the worker for that row.
         """
-        if self._filetype.upper() == "CSV":
-            self.__write_csv([key, min_gpu_mem_usage,
-                              max_gpu_mem_usage, worker_id], mode="a")
+        with self._lock:
+            row = {'task_key': key,
+                   'time': time.perf_counter() - self._plugin_start,
+                   'min_gpu_memory_mb': min_gpu_mem_usage,
+                   'max_gpu_memory_mb': max_gpu_mem_usage,
+                   'worker_id': worker_id}
+
+            new_row = pd.DataFrame([row])
+            self._record = pd.concat([self._record,
+                                      new_row], axis=0, ignore_index=True)
+
+            if self._filetype.upper() == "CSV":
+                header: bool = (not os.path.exists(self._path))
+
+                self._record.to_csv(self._path, mode='a', header=header)
 
     def transition(self, key, start, finish, *args, **kwargs):
         """
