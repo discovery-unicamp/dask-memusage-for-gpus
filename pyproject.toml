@@ -24,6 +24,7 @@ exclude = ["tests/*", "docs/*"]
 [tool.poetry.dependencies]
 dask = "*"
 distributed = "*"
+pandas = "*"
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
@@ -32,6 +33,7 @@ flake8 = "*"
 interrogate = "*"
 isort = "*"
 mock = "*"
+mypy = "*"
 parameterized = "*"
 pytest = "*"
 pytest-cov = "*"
