@@ -20,6 +20,10 @@ classifiers = [
 ]
 readme="README.md"
 exclude = ["tests/*", "docs/*"]
+packages = [
+    { include = "dask_memusage_gpus" },
+    { include = "dask_memusage_gpus_plugin.py" },
+]
 
 [tool.poetry.dependencies]
 dask = "*"
