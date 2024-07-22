@@ -92,7 +92,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
             if self._filetype.upper() == "CSV":
                 header: bool = (not os.path.exists(self._path))
 
-                self._record_df.to_csv(self._path, mode='a', header=header)
+                new_row.to_csv(self._path, mode='a', header=header)
+            # XXX: Only CSV has the option to append
             elif self._filetype.upper() == "PARQUET":
                 self._record_df.to_parquet(self._path)
             elif self._filetype.upper() == "JSON":
