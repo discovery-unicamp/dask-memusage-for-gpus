@@ -1,30 +1,10 @@
 #!/usr/bin/env python3
 
 import click
-
 from distributed.scheduler import Scheduler
 
-from dask_memusage_gpus import plugin
 from dask_memusage_gpus import definitions as defs
-
-
-def validate_file_type(filetype):
-    """
-    Validate the type of the input file.
-
-    Parameters
-    ----------
-    filetype : string
-        Type of the input file to be recorded.
-
-    Raises
-    ------
-    FileTypeException
-        If the type does not match with the supported types.
-    """
-    if filetype not in defs.FILE_TYPES:
-        raise defs.FileTypeException(f"'{filetype}' is not a valid "
-                                     "output file.")
+from dask_memusage_gpus import plugin, utils
 
 
 @click.command()
@@ -55,7 +35,7 @@ def dask_setup(scheduler: Scheduler,
     memusage_gpus_max : bool
         Run plugin collection maximum memory usage.
     """
-    validate_file_type(memusage_gpus_type)
+    utils.validate_file_type(memusage_gpus_type.lower())
 
     memory_plugin = plugin.MemoryUsageGPUsPlugin(scheduler,
                                                  memusage_gpus_path,

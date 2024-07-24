@@ -14,6 +14,15 @@ from dask_memusage_gpus import utils
 
 class TestUtils(unittest.TestCase):
     """ Test class for utils submodule. """
+    def test_validate_file_type(self):
+        """ Test what file type is supported for this plugin. """
+        with self.assertRaises(defs.FileTypeException):
+            for ftype in ["CSV", "Json", "txt", "html", "doc"]:
+                utils.validate_file_type(ftype)
+
+        for ftype in ["csv", "parquet", "json", "excel", "xml"]:
+            utils.validate_file_type(ftype)
+
     def test_generate_gpu_proccesses(self):
         """ Test general usage of function generate_gpu_proccesses(). """
         fixture = os.path.join(os.path.dirname(__file__), "fixtures/nvidia_smi.1.xml")

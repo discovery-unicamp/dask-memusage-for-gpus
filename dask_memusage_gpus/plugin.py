@@ -11,6 +11,7 @@ from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
 from dask_memusage_gpus import gpu_handler as gpu
+from dask_memusage_gpus import definitions as defs
 
 
 class MemoryUsageGPUsPlugin(SchedulerPlugin):
@@ -38,7 +39,7 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
 
         self._scheduler: Scheduler = scheduler
         self._path: str = path
-        self._filetype: str = filetype
+        self._filetype: str = filetype.lower()
         self._interval: int = interval
         self._mem_max: bool = mem_max
 
@@ -89,18 +90,18 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
             self._record_df = pd.concat([self._record_df,
                                          new_row], axis=0, ignore_index=True)
 
-            if self._filetype.upper() == "CSV":
+            if self._filetype == defs.CSV:
                 header: bool = (not os.path.exists(self._path))
 
                 new_row.to_csv(self._path, mode='a', header=header)
             # XXX: Only CSV has the option to append
-            elif self._filetype.upper() == "PARQUET":
+            elif self._filetype == defs.PARQUET:
                 self._record_df.to_parquet(self._path)
-            elif self._filetype.upper() == "JSON":
+            elif self._filetype == defs.JSON:
                 self._record_df.to_json(self._path)
-            elif self._filetype.upper() == "XML":
+            elif self._filetype == defs.XML:
                 self._record_df.to_xml(self._path)
-            elif self._filetype.upper() == "EXCEL":
+            elif self._filetype == defs.EXCEL:
                 self._record_df.to_excel(self._path, sheet_name='Dask GPUs', header=True)
 
     def transition(self, key, start, finish, *args, **kwargs):

@@ -11,6 +11,25 @@ from dask_memusage_gpus import definitions as defs
 from dask_memusage_gpus import gpu_handler as gpu
 
 
+def validate_file_type(filetype):
+    """
+    Validate the type of the input file.
+
+    Parameters
+    ----------
+    filetype : string
+        Type of the input file to be recorded.
+
+    Raises
+    ------
+    FileTypeException
+        If the type does not match with the supported types.
+    """
+    if filetype not in defs.FILE_TYPES:
+        raise defs.FileTypeException(f"'{filetype}' is not a valid "
+                                     "output file.")
+
+
 def run_cmd(cmd, shell=True):
     """
     Run a command line using python Popen.

@@ -2,11 +2,10 @@
 
 """ Test all the structures and funtions inside gpu_handler submodule. """
 
-import os
 import time
 import unittest
 
-from mock import patch, Mock
+from mock import patch
 
 from dask_memusage_gpus import gpu_handler as gpu
 
