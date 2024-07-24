@@ -10,8 +10,8 @@ import pandas as pd
 from distributed.diagnostics.plugin import SchedulerPlugin
 from distributed.scheduler import Scheduler
 
-from dask_memusage_gpus import gpu_handler as gpu
 from dask_memusage_gpus import definitions as defs
+from dask_memusage_gpus import gpu_handler as gpu
 
 
 class MemoryUsageGPUsPlugin(SchedulerPlugin):
