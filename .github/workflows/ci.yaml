@@ -61,7 +61,7 @@ jobs:
         run: |
           echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
           # We should have at least 80% of docs covered
-          interrogate -vv -i --fail-under=90 --badge-format svg -g . -e build/ -e tests/
+          interrogate -vv -i --fail-under=90 -g . -e build/ -e tests/
 
   tests:
     runs-on: ubuntu-latest

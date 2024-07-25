@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+""" Scheduler Plugin Base Module. """
+
 import click
 from distributed.scheduler import Scheduler
 

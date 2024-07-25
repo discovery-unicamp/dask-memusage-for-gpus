@@ -14,6 +14,7 @@ class TestGPUHandler(unittest.TestCase):
     """ Test class for gpu_handler submodule. """
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread(self, client):
+        """ Test a simple interaction with worker threads. """
         workers = [{'1.2.3.5': 234,
                     '1.2.3.6': 567},
                    {'1.2.3.5': 345,
@@ -36,6 +37,7 @@ class TestGPUHandler(unittest.TestCase):
 
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread_max(self, client):
+        """ Test a simple interaction with worker threads but using max aggreg. memory. """
         workers = [{'1.2.3.5': 234,
                     '1.2.3.6': 567},
                    {'1.2.3.5': 345,
@@ -58,6 +60,7 @@ class TestGPUHandler(unittest.TestCase):
 
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread_exception(self, client):
+        """ Test an exception trigger during memory fetch. """
         workers = {'1.2.3.5': 234,
                    '1.2.3.6': 567}
 
@@ -75,6 +78,7 @@ class TestGPUHandler(unittest.TestCase):
 
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread_no_worker(self, client):
+        """ Test memory fetch when there is no worker connected. """
         workers = {}
 
         client.return_value.run.return_value = workers
