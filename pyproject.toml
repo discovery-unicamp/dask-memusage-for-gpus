@@ -28,7 +28,11 @@ packages = [
 [tool.poetry.dependencies]
 dask = "*"
 distributed = "*"
+lxml = "*"
+openpyxl = "*"
 pandas = "*"
+pyarrow = "*"
+
 
 [tool.poetry.group.dev.dependencies]
 black = "*"
@@ -41,6 +45,7 @@ mypy = "*"
 parameterized = "*"
 pytest = "*"
 pytest-cov = "*"
+xlsxwriter = "*"
 wheel = "*"
 
 [tool.poetry.group.docs.dependencies]
