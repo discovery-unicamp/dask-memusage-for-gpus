@@ -37,7 +37,7 @@ class TestGPUHandler(unittest.TestCase):
 
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread_max(self, client):
-        """ Test a simple interaction with worker threads but using max aggreg. memory. """
+        """ Test a simple interaction with worker threads but using max aggr. memory. """
         workers = [{'1.2.3.5': 234,
                     '1.2.3.6': 567},
                    {'1.2.3.5': 345,
