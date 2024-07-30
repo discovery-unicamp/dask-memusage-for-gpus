@@ -109,18 +109,16 @@ class WorkersThread(Thread):
             ret = (0, 0)
             try:
                 mem_min = min(self._worker_memory[worker_address])
-
-                if not self._mem_max:
-                    last = self._worker_memory[worker_address][-1]
-
-                    logger.debug("Cleaning the worker memory list.")
-
-                    self._worker_memory[worker_address].clear()
-
-                    # Lets make sure the array is not fully empty
-                    self._worker_memory[worker_address].append(last)
-
                 mem_max = max(self._worker_memory[worker_address])
+
+                logger.debug("Cleaning the worker memory list.")
+
+                self._worker_memory[worker_address].clear()
+
+                if self._mem_max:
+                    # Lets make sure the array is not fully empty
+                    self._worker_memory[worker_address].append(mem_min)
+                    self._worker_memory[worker_address].append(mem_max)
 
                 ret = (mem_min, mem_max)
             except Exception as e:

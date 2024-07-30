@@ -27,13 +27,18 @@ class TestGPUHandler(unittest.TestCase):
         worker = gpu.WorkersThread("1.2.3.4", 1, False)
         worker.start()
 
-        time.sleep(3)
-
-        worker.cancel()
-        worker.stop()
+        time.sleep(1)
 
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.5'), (234, 234))
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.6'), (567, 567))
+
+        time.sleep(2)
+
+        self.assertEqual(worker.fetch_task_used_memory('1.2.3.5'), (234, 345))
+        self.assertEqual(worker.fetch_task_used_memory('1.2.3.6'), (567, 678))
+
+        worker.cancel()
+        worker.stop()
 
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread_max(self, client):
