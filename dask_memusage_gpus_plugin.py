@@ -11,7 +11,7 @@ from dask_memusage_gpus import plugin, utils
 
 @click.command()
 @click.option("--memusage-gpus-path", default=defs.DEFAULT_DATA_FILE)
-@click.option("--memusage-gpus-type", default=defs.CSV)
+@click.option("--memusage-gpus-record-type", default=defs.CSV)
 @click.option("--memusage-gpus-interval", default=1)
 @click.option("--memusage-gpus-max", is_flag=True)
 def dask_setup(scheduler: Scheduler,
