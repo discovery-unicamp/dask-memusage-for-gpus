@@ -70,12 +70,15 @@ To run the scheduler to monitor the GPU memory usage, the scheduler just require
 example below.
 
 ```bash
-$ dask scheduler --preload dask_memusage_gpus_plugin --memusage-gpus-path memusage-gpus.csv --memusage-gpus-record-type csv
+$ dask scheduler --preload dask_memusage_gpus_plugin --memusage-gpus-path memusage-gpus.csv --memusage-gpus-record-type csv --memusage-gpus-max
 ```
 
-This plugin also supports other formats like Parquet and Excel for example. There is no problem with threads because
-Dask CUDA worker only executes 1 thread per GPU.
+This plugin also supports other formats like Parquet and Excel for example. There is no problem with workers and
+threads because Dask CUDA worker only executes 1 thread per GPU.
 
+The results of this execution within the plugin enabled inside the cluster can be seen below.
+
+![kmeans](docs/imgs/max_memory_used_per_gpu.png)
 
 ## Limitations and Useful Content
 
