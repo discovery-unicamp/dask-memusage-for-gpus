@@ -46,6 +46,10 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         self._lock = Lock()
         self._plugin_start = time.perf_counter()
 
+        if os.path.exists(self._path):
+            # If there is an existing file, delete it.
+            os.remove(self._path)
+
         self._setup_record()
 
         self._workers_thread = gpu.WorkersThread(self._scheduler.address,

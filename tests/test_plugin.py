@@ -2,7 +2,9 @@
 
 """ Test all the structures and funtions inside gpu_handler submodule. """
 
+import asyncio
 import os
+import time
 import unittest
 
 import pandas as pd
@@ -113,3 +115,173 @@ class TestPlugin(unittest.TestCase):
             compute(make_bag())
 
             client.shutdown()
+
+    @patch("dask_memusage_gpus.gpu_handler.Client")
+    def test_regular_usage(self, client):
+        """ Test a regular memory measurement.
+        _______________________________________________________
+        |        |        |        |---------- func3 ---------|
+        |        |        |- func2 |        |        |        |
+        |------ func1 ----|        |        |        |        |
+        |__ 1s __|__ 1s __|__ 1s __|__ 1s __|__ 1s __|__ 1s __|
+
+        """
+        workers = [{'tcp://1.2.3.5:34567': 100},
+                   {'tcp://1.2.3.5:34567': 210},
+                   {'tcp://1.2.3.5:34567': 315},
+                   {'tcp://1.2.3.5:34567': 400},
+                   {'tcp://1.2.3.5:34567': 390},
+                   {'tcp://1.2.3.5:34567': 360},
+                   {'tcp://1.2.3.5:34567': 410}]
+
+        client.return_value.run.side_effect = workers
+
+        scheduler = Mock()
+        scheduler.address = '1.2.3.4'
+
+        dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=scheduler,
+                                                   path=self.path,
+                                                   filetype='csv',
+                                                   interval=1,
+                                                   mem_max=False)
+
+        time.sleep(0.5)
+
+        dask_plugin.transition('func1', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(2)
+
+        dask_plugin.transition('func2', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(1)
+
+        dask_plugin.transition('func3', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(3)
+
+        dask_plugin.transition('func4', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        asyncio.run(dask_plugin.before_close())
+
+        self.assertEqual(client.return_value.run.call_count, 7)
+
+        csv = pd.read_csv(self.path)
+
+        self.assertCountEqual(csv.min_gpu_memory_mb, [100, 210, 400, 360])
+        self.assertCountEqual(csv.max_gpu_memory_mb, [100, 315, 400, 410])
+
+    @patch("dask_memusage_gpus.gpu_handler.Client")
+    def test_regular_usage_with_max_record(self, client):
+        """ Test a regular memory measurement.
+        _______________________________________________________
+        |        |        |        |---------- func3 ---------|
+        |        |        |- func2 |        |        |        |
+        |------ func1 ----|        |        |        |        |
+        |__ 1s __|__ 1s __|__ 1s __|__ 1s __|__ 1s __|__ 1s __|
+
+        """
+        workers = [{'tcp://1.2.3.5:34567': 100},
+                   {'tcp://1.2.3.5:34567': 210},
+                   {'tcp://1.2.3.5:34567': 315},
+                   {'tcp://1.2.3.5:34567': 400},
+                   {'tcp://1.2.3.5:34567': 390},
+                   {'tcp://1.2.3.5:34567': 360},
+                   {'tcp://1.2.3.5:34567': 410}]
+
+        client.return_value.run.side_effect = workers
+
+        scheduler = Mock()
+        scheduler.address = '1.2.3.4'
+
+        # Test existing file removal
+        with open(self.path, "w") as fd:
+            fd.write(',foo,bar\n')
+
+        dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=scheduler,
+                                                   path=self.path,
+                                                   filetype='csv',
+                                                   interval=1,
+                                                   mem_max=True)
+
+        time.sleep(0.5)
+
+        dask_plugin.transition('func1', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(2)
+
+        dask_plugin.transition('func2', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(1)
+
+        dask_plugin.transition('func3', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(3)
+
+        dask_plugin.transition('func4', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        asyncio.run(dask_plugin.before_close())
+
+        self.assertEqual(client.return_value.run.call_count, 7)
+
+        csv = pd.read_csv(self.path)
+
+        self.assertCountEqual(csv.min_gpu_memory_mb, [100] * 4)
+        self.assertCountEqual(csv.max_gpu_memory_mb, [100, 315, 400, 410])
+
+    @patch("dask_memusage_gpus.gpu_handler.Client")
+    def test_high_call_demand_in_long_interval(self, client):
+        """ Test a regular memory measurement.
+        _______________________________________________________
+        |                                    |- func3 -|      |
+        |                          |- func2 -|                |
+        |        |----- func1 -----|                          |
+        |_______________________ 6s __________________________|
+
+        """
+        workers = [{'tcp://1.2.3.5:34567': 100},
+                   {'tcp://1.2.3.5:34567': 210}]
+
+        client.return_value.run.side_effect = workers
+
+        scheduler = Mock()
+        scheduler.address = '1.2.3.4'
+
+        dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=scheduler,
+                                                   path=self.path,
+                                                   filetype='csv',
+                                                   interval=6,
+                                                   mem_max=False)
+
+        time.sleep(3.5)
+
+        dask_plugin.transition('func1', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(1)
+
+        dask_plugin.transition('func2', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(1)
+
+        dask_plugin.transition('func3', 'processing', 'memory',
+                               worker='tcp://1.2.3.5:34567')
+
+        time.sleep(1.5)
+
+        asyncio.run(dask_plugin.before_close())
+
+        self.assertEqual(client.return_value.run.call_count, 2)
+
+        csv = pd.read_csv(self.path)
+
+        self.assertCountEqual(csv.min_gpu_memory_mb, [100, -1, -1])
+        self.assertCountEqual(csv.max_gpu_memory_mb, [100, -1, -1])

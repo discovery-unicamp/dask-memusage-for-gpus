@@ -107,6 +107,7 @@ class WorkersThread(Thread):
         """
         with self._mutex:
             ret = (0, 0)
+
             try:
                 mem_min = min(self._worker_memory[worker_address])
                 mem_max = max(self._worker_memory[worker_address])
@@ -121,6 +122,10 @@ class WorkersThread(Thread):
                     self._worker_memory[worker_address].append(mem_max)
 
                 ret = (mem_min, mem_max)
+            except ValueError as ve:
+                logger.error(str(ve))
+
+                ret = (-1, -1)
             except Exception as e:
                 logger.error(str(e))
 
