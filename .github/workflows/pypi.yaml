@@ -9,6 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment: pypi_upload
+    needs: [tests]
     steps:
       - uses: actions/checkout@v3
       - name: Generate artifacts
@@ -19,4 +20,4 @@ jobs:
           poetry build
       - name: Upload artifacts
         run: |
-          twine upload --repository ${{ vars.PYPI_REPOSITORY }} -u ${{ secrets.PYPI_USER }} -p ${{ secrets.PYPI_TOKEN }} dist/*
+          twine upload --repository pypi dist/*
