@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          pip install isort flake8 mypy interrogate dask distributed # Install manually dependencies (TODO: move to poetry)
+          pip install isort flake8 mypy interrogate dask distributed pandas-stubs pandas # Install manually dependencies (TODO: move to poetry)
           echo "## CI/CD Summary :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "-------------------------" >> $GITHUB_STEP_SUMMARY
       - name: Check imports with isort
