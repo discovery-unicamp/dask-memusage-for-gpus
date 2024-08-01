@@ -62,7 +62,7 @@ jobs:
         run: |
           echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
           # We should have at least 80% of docs covered
-          interrogate -vv -i --fail-under=90 -g . -e build/ -e tests/
+          interrogate -vv -i --fail-under=90 -g /tmp/ -e build/ -e tests/
 
   tests:
     strategy:
@@ -84,3 +84,54 @@ jobs:
       - name: Generate badge
         run: |
           coverage-badge -o /tmp/coverage.svg
+
+  commit-badges-branch:
+    runs-on: ubuntu-latest
+    needs: [tests]
+    if: github.ref == 'refs/heads/releases'
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: badges
+      - name: Setup Git
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+      - name: Update coverage
+        id: coverage
+        run: |
+          if [ -f /tmp/coverage.svg ]; then
+              mv /tmp/coverage.svg badges/
+          else
+              exit 1
+          fi
+      - name: Update interrogate
+        id: interrogate
+          if [ -f /tmp/interrogate_badge.svg ]; then
+              mv /tmp/interrogate_badge.svg badges/
+          else
+              exit 1
+          fi
+      - name: Commit & push data
+        if: success() && (steps.coverage.outcome == 'success' || steps.interrogate.outcome == 'success')
+        run: |
+          git add -f badges/*
+          git commit -m "Record badges [$(date +'%Y-%m-%d %H:%M')]"
+          git push
+
+  deploy:
+    runs-on: ubuntu-latest
+    environment: pypi_upload
+    needs: [tests]
+    if: github.ref == 'refs/heads/releases'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Generate artifacts
+        run: |
+          # Install twine and poetry
+          pip install twine poetry
+          poetry config virtualenvs.create false
+          poetry build
+      - name: Upload artifacts
+        run: |
+          twine upload --repository pypi dist/*
