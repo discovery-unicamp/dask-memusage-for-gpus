@@ -82,6 +82,14 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual('This is a test\n', output)
 
+    def test_run_cmd_with_delay_and_empty(self):
+        """ Test producing a delay in command line execution but no output. """
+        output = ""
+        for line in utils.run_cmd("sleep 3"):
+            output += line.decode('ascii')
+
+        self.assertEqual('', output)
+
     def test_get_worker_gpu_memory_used(self):
         """ Test general use of function get_worker_gpu_memory_used(). """
         processes = [gpu.GPUProcess(pid=1234,

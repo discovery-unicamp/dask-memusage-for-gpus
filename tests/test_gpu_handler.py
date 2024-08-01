@@ -12,6 +12,13 @@ from dask_memusage_gpus import gpu_handler as gpu
 
 class TestGPUHandler(unittest.TestCase):
     """ Test class for gpu_handler submodule. """
+    def test_worker_with_simple_creation(self):
+        """ Test a simple creation of the constructor and stop. """
+        worker = gpu.WorkersThread("1.2.3.4", 1, False)
+
+        worker.cancel()
+        worker.stop()
+
     @patch("dask_memusage_gpus.gpu_handler.Client")
     def test_workers_thread(self, client):
         """ Test a simple interaction with worker threads. """
