@@ -75,7 +75,7 @@ jobs:
           python3 -m pip install pytest pytest-coverage coverage-badge mock parameterized distributed dask pandas pyarrow lxml xlsxwriter openpyxl
       - name: Run test cases
         run: |
-          pytest --cov-report xml:xml/coverage.xml tests/
+          pytest --cov dask_memusage_gpus/ --cov-report xml:xml/coverage.xml tests/
       - name: Generate badge
         run: |
           coverage-badge -o /tmp/coverage.svg
