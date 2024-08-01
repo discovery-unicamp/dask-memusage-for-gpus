@@ -3,7 +3,7 @@ name: PyPi Automatic Upload
 on:
   push:
     branches:
-      - releases
+      - 'releases'
 
 jobs:
   build:
