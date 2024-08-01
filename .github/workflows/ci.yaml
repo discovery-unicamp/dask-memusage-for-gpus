@@ -19,9 +19,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Define python version env
-        env:
-          python_version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           pip install isort flake8 mypy interrogate dask distributed pandas-stubs pandas # Install manually dependencies (TODO: move to poetry)
@@ -105,9 +102,6 @@ jobs:
     needs: [lint]
     steps:
       - uses: actions/checkout@v4
-      - name: Define python version env
-        env:
-          python_version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python3 -m pip install pytest pytest-coverage coverage-badge mock parameterized distributed dask pandas pyarrow lxml xlsxwriter openpyxl
