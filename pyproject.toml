@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dask-memusage-gpus"
-version = "1.0"
+version = "1.0.0"
 description = "A Dask Scheduler Plugin to monitor GPU memory usage for tasks"
 authors = ["Julio Faracco <jcfaracco@gmail.com>"]
 maintainers = ["Julio Faracco <jcfaracco@gmail.com>"]
