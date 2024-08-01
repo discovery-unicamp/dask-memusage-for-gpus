@@ -60,31 +60,36 @@ jobs:
           mypy --install-types --non-interactive
           mypy dask_memusage_gpus/
       - name: Doc lint with interrogate
+        env:
+          python_version: ${{ matrix.python-version }}
         run: |
           echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
           # We should have at least 80% of docs covered
           interrogate -vv -i --fail-under=90 -g /tmp/ -e build/ -e tests/
 
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
+          # Run only for the latest python version
+          if [ "$python_version" == "3.12" ]; then
+              git config --local user.email "actions@github.com"
+              git config --local user.name "GitHub Actions"
 
-          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+              BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-          git fetch origin badges
-          git checkout badges
+              git fetch origin badges
+              git checkout badges
 
-          if ! cmp -s /tmp/interrogate_badge.svg badges/interrogate_badge.svg; then
-              git pull
+              if ! cmp -s /tmp/interrogate_badge.svg badges/interrogate_badge.svg; then
+                  git pull
 
-              cp -rf /tmp/interrogate_badge.svg badges/interrogate_badge.svg
+                  cp -rf /tmp/interrogate_badge.svg badges/interrogate_badge.svg
 
-              git add -f badges/interrogate_badge.svg
+                  git add -f badges/interrogate_badge.svg
 
-              git commit -m "Record interrogate badge [$(date +'%Y-%m-%d %H:%M')]"
-              git push
+                  git commit -m "Record interrogate badge [$(date +'%Y-%m-%d %H:%M')]"
+                  git push
+              fi
+
+              git checkout $BRANCH
           fi
-
-          git checkout $BRANCH
 
   tests:
     strategy:
@@ -105,29 +110,34 @@ jobs:
           pytest --cov dask_memusage_gpus/ --cov-report xml:xml/coverage.xml tests/
       - name: Generate and update badge
         if: contains(github.ref, 'releases')
+        env:
+          python_version: ${{ matrix.python-version }}
         run: |
-          git config --local user.email "actions@github.com"
-          git config --local user.name "GitHub Actions"
+          # Run only for the latest python version
+          if [ "$python_version" == "3.12" ]; then
+              git config --local user.email "actions@github.com"
+              git config --local user.name "GitHub Actions"
 
-          coverage-badge -o /tmp/coverage.svg
+              coverage-badge -o /tmp/coverage.svg
 
-          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+              BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-          git fetch origin badges
-          git checkout badges
+              git fetch origin badges
+              git checkout badges
 
-          if ! cmp -s /tmp/coverage.svg badges/coverage.svg; then
-              git pull
+              if ! cmp -s /tmp/coverage.svg badges/coverage.svg; then
+                  git pull
 
-              cp -rf /tmp/coverage.svg badges/coverage.svg
+                  cp -rf /tmp/coverage.svg badges/coverage.svg
 
-              git add -f badges/coverage.svg
+                  git add -f badges/coverage.svg
 
-              git commit -m "Record coverage badge [$(date +'%Y-%m-%d %H:%M')]"
-              git push
+                  git commit -m "Record coverage badge [$(date +'%Y-%m-%d %H:%M')]"
+                  git push
+              fi
+
+              git checkout $BRANCH
           fi
-
-          git checkout $BRANCH
 
   deploy:
     runs-on: ubuntu-latest
