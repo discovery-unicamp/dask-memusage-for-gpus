@@ -34,7 +34,7 @@ class TestGPUHandler(unittest.TestCase):
         worker = gpu.WorkersThread("1.2.3.4", 1, False)
         worker.start()
 
-        time.sleep(1)
+        time.sleep(0.5)
 
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.5'), (234, 234))
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.6'), (567, 567))
@@ -43,6 +43,8 @@ class TestGPUHandler(unittest.TestCase):
 
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.5'), (234, 345))
         self.assertEqual(worker.fetch_task_used_memory('1.2.3.6'), (567, 678))
+
+        self.assertEqual(client.return_value.run.call_count, 3)
 
         worker.cancel()
         worker.stop()
