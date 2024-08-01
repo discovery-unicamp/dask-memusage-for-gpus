@@ -1,3 +1,4 @@
+---
 name: Continuous Test
 
 on:
@@ -57,7 +58,7 @@ jobs:
         run: |
           echo "* **Mypy results:** $(mypy dask_memusage_gpus/)" >> $GITHUB_STEP_SUMMARY
           mypy --install-types --non-interactive
-          mypy dask_memusage_gpus/          
+          mypy dask_memusage_gpus/
       - name: Doc lint with interrogate
         run: |
           echo "* **interrogate results:** $(interrogate -i --fail-under=15 dask_memusage_gpus/ | cut -d: -d" " -f4)" >> $GITHUB_STEP_SUMMARY
@@ -90,7 +91,7 @@ jobs:
     needs: [tests]
     if: github.ref == 'refs/heads/releases'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           ref: badges
       - name: Setup Git
@@ -107,6 +108,7 @@ jobs:
           fi
       - name: Update interrogate
         id: interrogate
+        run: |
           if [ -f /tmp/interrogate_badge.svg ]; then
               mv /tmp/interrogate_badge.svg badges/
           else
@@ -125,7 +127,7 @@ jobs:
     needs: [tests]
     if: github.ref == 'refs/heads/releases'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Generate artifacts
         run: |
           # Install twine and poetry
