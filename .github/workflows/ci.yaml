@@ -65,7 +65,12 @@ jobs:
           interrogate -vv -i --fail-under=90 -g . -e build/ -e tests/
 
   tests:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # Run for Python 3.8 only for now
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest]
+    runs-on: ${{ matrix.os }}
     environment: continuous_test
     needs: [lint]
     steps:
