@@ -65,6 +65,27 @@ jobs:
           # We should have at least 80% of docs covered
           interrogate -vv -i --fail-under=90 -g /tmp/ -e build/ -e tests/
 
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+          git fetch origin badges
+          git checkout badges
+
+          if ! cmp -s /tmp/interrogate_badge.svg badges/interrogate_badge.svg; then
+              git pull
+
+              cp -rf /tmp/interrogate_badge.svg badges/interrogate_badge.svg
+
+              git add -f badges/interrogate_badge.svg
+
+              git commit -m "Record interrogate badge [$(date +'%Y-%m-%d %H:%M')]"
+              git push
+          fi
+
+          git checkout $BRANCH
+
   tests:
     strategy:
       matrix:
@@ -82,44 +103,31 @@ jobs:
       - name: Run test cases
         run: |
           pytest --cov dask_memusage_gpus/ --cov-report xml:xml/coverage.xml tests/
-      - name: Generate badge
-        run: |
-          coverage-badge -o /tmp/coverage.svg
-
-  commit-badges-branch:
-    runs-on: ubuntu-latest
-    needs: [tests]
-    if: github.ref == 'refs/heads/releases'
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: badges
-      - name: Setup Git
+      - name: Generate and update badge
+        if: contains(github.ref, 'releases')
         run: |
           git config --local user.email "actions@github.com"
           git config --local user.name "GitHub Actions"
-      - name: Update coverage
-        id: coverage
-        run: |
-          if [ -f /tmp/coverage.svg ]; then
-              mv /tmp/coverage.svg badges/
-          else
-              exit 1
+
+          coverage-badge -o /tmp/coverage.svg
+
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+          git fetch origin badges
+          git checkout badges
+
+          if ! cmp -s /tmp/coverage.svg badges/coverage.svg; then
+              git pull
+
+              cp -rf /tmp/coverage.svg badges/coverage.svg
+
+              git add -f badges/coverage.svg
+
+              git commit -m "Record coverage badge [$(date +'%Y-%m-%d %H:%M')]"
+              git push
           fi
-      - name: Update interrogate
-        id: interrogate
-        run: |
-          if [ -f /tmp/interrogate_badge.svg ]; then
-              mv /tmp/interrogate_badge.svg badges/
-          else
-              exit 1
-          fi
-      - name: Commit & push data
-        if: success() && (steps.coverage.outcome == 'success' || steps.interrogate.outcome == 'success')
-        run: |
-          git add -f badges/*
-          git commit -m "Record badges [$(date +'%Y-%m-%d %H:%M')]"
-          git push
+
+          git checkout $BRANCH
 
   deploy:
     runs-on: ubuntu-latest
