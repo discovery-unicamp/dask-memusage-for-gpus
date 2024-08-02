@@ -16,7 +16,7 @@ from dask_memusage_gpus import plugin, utils
 @click.option("--memusage-gpus-max", is_flag=True)
 def dask_setup(scheduler: Scheduler,
                memusage_gpus_path: str,
-               memusage_gpus_type: str,
+               memusage_gpus_record_type: str,
                memusage_gpus_interval: int,
                memusage_gpus_max: bool):
     """
@@ -28,7 +28,7 @@ def dask_setup(scheduler: Scheduler,
         Dask Scheduler object.
     memusage_gpus_path : string
         Path of the record file.
-    memusage_gpus_filetype : string
+    memusage_gpus_record_type : string
         Type of the record file. It can be CSV, PARQUET, JSON, XML or EXCEL
         (default=CSV).
     memusage_gpus_interval : int
@@ -41,7 +41,7 @@ def dask_setup(scheduler: Scheduler,
 
     memory_plugin = plugin.MemoryUsageGPUsPlugin(scheduler,
                                                  memusage_gpus_path,
-                                                 memusage_gpus_type,
+                                                 memusage_gpus_record_type,
                                                  memusage_gpus_interval,
                                                  memusage_gpus_max)
     scheduler.add_plugin(memory_plugin)
