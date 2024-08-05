@@ -50,23 +50,17 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
             # If there is an existing file, delete it.
             os.remove(self._path)
 
-        self._setup_record()
+        self._record_df = pd.DataFrame(columns=["task_key",
+                                                "time",
+                                                "min_gpu_memory_mb",
+                                                "max_gpu_memory_mb",
+                                                "worker_id"])
 
         self._workers_thread = gpu.WorkersThread(self._scheduler.address,
                                                  self._interval,
                                                  self._mem_max)
 
         self._workers_thread.start()
-
-    def _setup_record(self):
-        """
-        Setup the record structure.
-        """
-        self._record_df = pd.DataFrame(columns=["task_key",
-                                                "time",
-                                                "min_gpu_memory_mb",
-                                                "max_gpu_memory_mb",
-                                                "worker_id"])
 
     def _record(self, key, min_gpu_mem_usage, max_gpu_mem_usage, worker_id):
         """
@@ -95,7 +89,7 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
                                          new_row], axis=0, ignore_index=True)
 
             if self._filetype == defs.CSV:
-                header: bool = (not os.path.exists(self._path))
+                header: bool = not os.path.exists(self._path)
 
                 new_row.to_csv(self._path, mode='a', header=header)
             # XXX: Only CSV has the option to append

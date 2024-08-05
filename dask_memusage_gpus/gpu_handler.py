@@ -6,7 +6,6 @@ import asyncio
 import logging
 from collections import defaultdict
 from contextlib import suppress
-from dataclasses import dataclass
 from threading import Lock, Thread
 
 import dask
@@ -15,14 +14,6 @@ from distributed.client import Client
 from dask_memusage_gpus import utils
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class GPUProcess(dict):
-    """ Object that represents a Process using GPU. """
-    pid: int
-    name: str
-    memory_used: int
 
 
 class WorkersThread(Thread):
@@ -141,7 +132,7 @@ class WorkersThread(Thread):
         while True:
             worker_gpu_mem = client.run(utils.get_worker_gpu_memory_used)
 
-            with open("test", "w") as fp:
+            with open("test", "w", encoding="utf-8") as fp:
                 fp.write(str(worker_gpu_mem))
 
             with self._mutex:
@@ -152,6 +143,6 @@ class WorkersThread(Thread):
                     self._worker_memory[address].append(memory)
 
                     logger.debug(f"Appending {memory} MiB into worker ID "
-                                 "'{address}'.")
+                                 f"'{address}'")
 
             await asyncio.sleep(self._interval)

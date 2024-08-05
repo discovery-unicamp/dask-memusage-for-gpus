@@ -8,7 +8,6 @@ import unittest
 from mock import patch
 
 from dask_memusage_gpus import definitions as defs
-from dask_memusage_gpus import gpu_handler as gpu
 from dask_memusage_gpus import utils
 
 
@@ -92,15 +91,15 @@ class TestUtils(unittest.TestCase):
 
     def test_get_worker_gpu_memory_used(self):
         """ Test general use of function get_worker_gpu_memory_used(). """
-        processes = [gpu.GPUProcess(pid=1234,
-                                    name="foo",
-                                    memory_used=10),
-                     gpu.GPUProcess(pid=5678,
-                                    name="bar",
-                                    memory_used=25),
-                     gpu.GPUProcess(pid=2222,
-                                    name="/usr/bin/python3",
-                                    memory_used=310)]
+        processes = [defs.GPUProcess(pid=1234,
+                                     name="foo",
+                                     memory_used=10),
+                     defs.GPUProcess(pid=5678,
+                                     name="bar",
+                                     memory_used=25),
+                     defs.GPUProcess(pid=2222,
+                                     name="/usr/bin/python3",
+                                     memory_used=310)]
 
         with patch("dask_memusage_gpus.utils.generate_gpu_proccesses") as p_gen:
             with patch("os.getpid") as getpid:
@@ -111,12 +110,12 @@ class TestUtils(unittest.TestCase):
 
     def test_get_worker_gpu_memory_used_no_match(self):
         """ Test general use of function get_worker_gpu_memory_used(). """
-        processes = [gpu.GPUProcess(pid=1234,
-                                    name="foo",
-                                    memory_used=10),
-                     gpu.GPUProcess(pid=5678,
-                                    name="bar",
-                                    memory_used=25)]
+        processes = [defs.GPUProcess(pid=1234,
+                                     name="foo",
+                                     memory_used=10),
+                     defs.GPUProcess(pid=5678,
+                                     name="bar",
+                                     memory_used=25)]
 
         with patch("dask_memusage_gpus.utils.generate_gpu_proccesses") as p_gen:
             with patch("os.getpid") as getpid:

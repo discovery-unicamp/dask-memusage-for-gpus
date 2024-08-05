@@ -37,7 +37,7 @@ def dask_setup(scheduler: Scheduler,
     memusage_gpus_max : bool
         Run plugin collection maximum memory usage.
     """
-    utils.validate_file_type(memusage_gpus_type.lower())
+    utils.validate_file_type(memusage_gpus_record_type.lower())
 
     memory_plugin = plugin.MemoryUsageGPUsPlugin(scheduler,
                                                  memusage_gpus_path,

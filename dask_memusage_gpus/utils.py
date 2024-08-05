@@ -8,7 +8,6 @@ import xml.etree.ElementTree as ET
 from time import sleep
 
 from dask_memusage_gpus import definitions as defs
-from dask_memusage_gpus import gpu_handler as gpu
 
 
 def validate_file_type(filetype):
@@ -53,21 +52,21 @@ def run_cmd(cmd, shell=True):
     CMDException
         If the process returns an error.
     """
-    p = subprocess.Popen(cmd,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
-                         shell=shell)
+    with subprocess.Popen(cmd,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE,
+                          shell=shell) as p:
 
-    for line in iter(p.stdout.readline, b''):
-        if line:
-            yield line
+        for line in iter(p.stdout.readline, b''):
+            if line:
+                yield line
 
-    while p.poll() is None:
-        sleep(.1)
+        while p.poll() is None:
+            sleep(.1)
 
-    err = p.stderr.read()
-    if p.returncode != 0:
-        raise defs.CMDException("Error: " + err.decode('utf-8'))
+        err = p.stderr.read()
+        if p.returncode != 0:
+            raise defs.CMDException("Error: " + err.decode('utf-8'))
 
 
 def generate_gpu_proccesses():
@@ -85,30 +84,43 @@ def generate_gpu_proccesses():
 
     root = ET.fromstring(output)
 
+    def fetch_process_info(process):
+        """ Fetch <process_info> tag items. """
+        pid = -1
+        name = None
+        memory = 0
+
+        for process_info in process:
+            if process_info.tag == "pid":
+                pid = int(process_info.text)
+            elif process_info.tag == "process_name":
+                name = process_info.text
+            elif process_info.tag == "used_memory":
+                memory = process_info.text.split(' ')
+                memory = float(memory[0])
+
+        processes.append(defs.GPUProcess(pid=pid,
+                                         name=name,
+                                         memory_used=memory))
+
+    def fetch_processes(child):
+        """ Fetch <processes> arrays. """
+        for process in child:
+            if process.tag == "process_info":
+                fetch_process_info(process)
+
+
+    def fetch_gpu(child):
+        """ Fetch <gpu> tag. """
+        for gpu_child in child:
+            if gpu_child.tag == "processes":
+                fetch_processes(gpu_child)
+
     processes = []
     for child in root:
         if child.tag == "gpu":
-            for gpu_child in child:
-                if gpu_child.tag == "processes":
-                    for process in gpu_child:
-                        if process.tag == "process_info":
+            fetch_gpu(child)
 
-                            pid = -1
-                            name = None
-                            memory = 0
-
-                            for process_info in process:
-                                if process_info.tag == "pid":
-                                    pid = int(process_info.text)
-                                elif process_info.tag == "process_name":
-                                    name = process_info.text
-                                elif process_info.tag == "used_memory":
-                                    memory = process_info.text.split(' ')
-                                    memory = float(memory[0])
-
-                            processes.append(gpu.GPUProcess(pid=pid,
-                                                            name=name,
-                                                            memory_used=memory))
     return processes
 
 

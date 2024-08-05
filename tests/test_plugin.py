@@ -44,11 +44,21 @@ def make_bag():
     ).map(allocate_50mb).sum().apply(no_allocate)
 
 
+class PipRequirementException(ImportError):
+    """ Some dependency that are required for specific test. """
+
+
 class TestPlugin(unittest.TestCase):
     """ Test class for plugin submodule. """
     def setUp(self):
         """ Setup test method. """
         self.path = os.path.join(os.path.dirname(__file__), "memusage")
+
+        self.required_packages = {
+                "parquet": "pyarrow",
+                "xml": "lxml",
+                "excel": "openpyxl",
+        }
 
     def tearDown(self):
         """ Tear down the test class. """
@@ -74,16 +84,19 @@ class TestPlugin(unittest.TestCase):
         if file == 'excel':
             self.path += '.xlsx'
 
-        dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=scheduler,
-                                                   path=self.path,
-                                                   filetype=file,
-                                                   interval=2,
-                                                   mem_max=True)
+        try:
+            dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=scheduler,
+                                                       path=self.path,
+                                                       filetype=file,
+                                                       interval=2,
+                                                       mem_max=True)
 
-        dask_plugin.transition('func', 'queued', 'processing',
-                               worker='tcp://1.2.3.4:34567')
-        dask_plugin.transition('func', 'processing', 'memory',
-                               worker='tcp://1.2.3.4:34567')
+            dask_plugin.transition('func', 'queued', 'processing',
+                                   worker='tcp://1.2.3.4:34567')
+            dask_plugin.transition('func', 'processing', 'memory',
+                                   worker='tcp://1.2.3.4:34567')
+        except ImportError:
+            raise PipRequirementException(f"Failed because it requires '{self.required_packages[file]}'.")
 
         df = func(self.path)
 

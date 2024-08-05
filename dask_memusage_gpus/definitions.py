@@ -2,6 +2,8 @@
 
 """ All kinds of fixed definitions for the plugin and other helpers. """
 
+from dataclasses import dataclass
+
 # Variable definitions
 DEFAULT_DATA_FILE = "memory_usage_gpus.csv"
 
@@ -23,3 +25,11 @@ class CMDException(Exception):
 
 class FileTypeException(Exception):
     """ File Type Validation Exception. """
+
+
+@dataclass
+class GPUProcess(dict):
+    """ Object that represents a Process using GPU. """
+    pid: int
+    name: str
+    memory_used: int
