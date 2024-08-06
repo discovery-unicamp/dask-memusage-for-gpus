@@ -89,7 +89,8 @@ class TestPlugin(unittest.TestCase):
                                                        path=self.path,
                                                        filetype=file,
                                                        interval=2,
-                                                       mem_max=True)
+                                                       mem_max=True,
+                                                       run_on_client=False)
 
             dask_plugin.transition('func', 'queued', 'processing',
                                    worker='tcp://1.2.3.4:34567')
@@ -121,11 +122,38 @@ class TestPlugin(unittest.TestCase):
                                                        path=self.path,
                                                        filetype='csv',
                                                        interval=2,
-                                                       mem_max=True)
+                                                       mem_max=True,
+                                                       run_on_client=False)
 
             cluster.scheduler.add_plugin(dask_plugin)
 
             compute(make_bag())
+
+            client.shutdown()
+
+    def test_install_plugin_run_on_client(self):
+        """ Test install plugin from scheduler and run on client. """
+
+        if not CUDA_SUPPORT:
+            raise unittest.SkipTest("No GPU support from host.")
+
+        with LocalCUDACluster() as cluster:
+            dask_plugin = plugin.MemoryUsageGPUsPlugin(scheduler=cluster.scheduler,
+                                                       path=self.path,
+                                                       filetype='csv',
+                                                       interval=2,
+                                                       mem_max=True,
+                                                       run_on_client=True)
+
+            cluster.scheduler.add_plugin(dask_plugin)
+
+            self.assertFalse(dask_plugin._workers_thread.is_alive())
+
+            client = Client(cluster)
+
+            compute(make_bag())
+
+            self.assertTrue(dask_plugin._workers_thread.is_alive())
 
             client.shutdown()
 
@@ -156,7 +184,8 @@ class TestPlugin(unittest.TestCase):
                                                    path=self.path,
                                                    filetype='csv',
                                                    interval=1,
-                                                   mem_max=False)
+                                                   mem_max=False,
+                                                   run_on_client=False)
 
         time.sleep(0.5)
 
@@ -218,7 +247,8 @@ class TestPlugin(unittest.TestCase):
                                                    path=self.path,
                                                    filetype='csv',
                                                    interval=1,
-                                                   mem_max=True)
+                                                   mem_max=True,
+                                                   run_on_client=False)
 
         time.sleep(0.5)
 
@@ -271,7 +301,8 @@ class TestPlugin(unittest.TestCase):
                                                    path=self.path,
                                                    filetype='csv',
                                                    interval=6,
-                                                   mem_max=False)
+                                                   mem_max=False,
+                                                   run_on_client=False)
 
         time.sleep(3.5)
 

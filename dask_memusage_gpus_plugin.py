@@ -14,11 +14,13 @@ from dask_memusage_gpus import plugin, utils
 @click.option("--memusage-gpus-record-type", default=defs.CSV)
 @click.option("--memusage-gpus-interval", default=1)
 @click.option("--memusage-gpus-max", is_flag=True)
+@click.option("--memusage-gpus-run-on-client", is_flag=True)
 def dask_setup(scheduler: Scheduler,
                memusage_gpus_path: str,
                memusage_gpus_record_type: str,
                memusage_gpus_interval: int,
-               memusage_gpus_max: bool):
+               memusage_gpus_max: bool,
+               memusage_gpus_run_on_client: bool):
     """
     Setup Dask Scheduler Plugin.
 
@@ -36,6 +38,8 @@ def dask_setup(scheduler: Scheduler,
         daemon in seconds (default=1).
     memusage_gpus_max : bool
         Run plugin collection maximum memory usage.
+    memusage_gpus_run_on_client : bool
+        Run plugin only when a client connects.
     """
     utils.validate_file_type(memusage_gpus_record_type.lower())
 
@@ -43,5 +47,6 @@ def dask_setup(scheduler: Scheduler,
                                                  memusage_gpus_path,
                                                  memusage_gpus_record_type,
                                                  memusage_gpus_interval,
-                                                 memusage_gpus_max)
+                                                 memusage_gpus_max,
+                                                 memusage_gpus_run_on_client)
     scheduler.add_plugin(memory_plugin)

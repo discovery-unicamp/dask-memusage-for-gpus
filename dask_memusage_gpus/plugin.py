@@ -33,7 +33,7 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         Collect maximum memory usage.
     """
     def __init__(self, scheduler: Scheduler, path: str, filetype: str,
-                 interval: int, mem_max: bool):
+                 interval: int, mem_max: bool, run_on_client: bool):
         """ Constructor of the MemoryUsageGPUsPlugin class. """
         SchedulerPlugin.__init__(self)
 
@@ -42,6 +42,9 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
         self._filetype: str = filetype.lower()
         self._interval: int = interval
         self._mem_max: bool = mem_max
+        self._run_on_client: bool = run_on_client
+
+        self._n_clients = 0
 
         self._lock = Lock()
         self._plugin_start = time.perf_counter()
@@ -60,7 +63,8 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
                                                  self._interval,
                                                  self._mem_max)
 
-        self._workers_thread.start()
+        if not self._run_on_client:
+            self._workers_thread.start()
 
     def _record(self, key, min_gpu_mem_usage, max_gpu_mem_usage, worker_id):
         """
@@ -101,6 +105,24 @@ class MemoryUsageGPUsPlugin(SchedulerPlugin):
                 self._record_df.to_xml(self._path)
             elif self._filetype == defs.EXCEL:
                 self._record_df.to_excel(self._path, sheet_name='Dask GPUs', header=True)
+
+    def add_client(self, scheduler: Scheduler, client: str) -> None:
+        """
+        Run when a new client connects.
+        """
+        if self._n_clients == 0 and self._run_on_client:
+            self._workers_thread.start()
+
+        self._n_clients += 1
+
+    def remove_client(self, scheduler: Scheduler, client: str) -> None:
+        """
+        Run when a client disconnects.
+        """
+        self._n_clients -= 1
+
+        if self._n_clients == 0 and self._run_on_client:
+            self._workers_thread.stop()
 
     def transition(self, key, start, finish, *args, **kwargs):
         """
